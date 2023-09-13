@@ -17,6 +17,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define USE_UFILESYS
+
 #ifdef USE_UFILESYS
 /*********************************************************************************************\
 This driver adds universal file system support for

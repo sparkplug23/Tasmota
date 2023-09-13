@@ -17,6 +17,10 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define ESP32
+#define USE_WEBCAM
+
+
 #ifdef ESP32
 #ifdef USE_WEBCAM
 /*********************************************************************************************\
