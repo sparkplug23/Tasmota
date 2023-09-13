@@ -201,7 +201,8 @@ void ZeroCrossMomentEnd(void) {
 #endif
 }
 
-void IRAM_ATTR ZeroCrossIsr(void) {
+void IRAM_ATTR ZeroCrossIsr(void);
+void ZeroCrossIsr(void) {
   uint32_t time = micros();
   TasmotaGlobal.zc_interval = ((int32_t) (time - TasmotaGlobal.zc_time));
   TasmotaGlobal.zc_time = time;
@@ -309,6 +310,7 @@ void SetDevicePower(power_t rpower, uint32_t source) {
   else {
     uint32_t port = 0;
     uint32_t port_next;
+    power_t bistable = 0;
 
     ZeroCrossMomentStart();
 
@@ -316,12 +318,25 @@ void SetDevicePower(power_t rpower, uint32_t source) {
       power_t state = rpower &1;
 
       port_next = 1;                              // Select next relay
+      bool update = true;
       if (bitRead(TasmotaGlobal.rel_bistable, port)) {
-        if (!state) { port_next = 2; }            // Skip highest relay
-        port += state;                            // Relay<lowest> = Off, Relay<highest> = On
+        if (Settings->flag6.bistable_single_pin) {  // SetOption152 - (Power) Use single pin bistable
+          if (0x80000000 == TasmotaGlobal.power_latching) {
+            TasmotaGlobal.power_latching = TasmotaGlobal.power;  // Init last known state
+          }
+          update = (bitRead(TasmotaGlobal.power_latching, port) != state);
+          if (update) {
+            bitWrite(TasmotaGlobal.power_latching, port, state);
+            bitSet(bistable, port);
+          }
+
+        } else {
+          if (!state) { port_next = 2; }          // Skip highest relay
+          port += state;                          // Relay<lowest> = Off, Relay<highest> = On
+        }
         state = 1;                                // Set pulse
       }
-      if (i < MAX_RELAYS) {
+      if (update && (i < MAX_RELAYS)) {
         DigitalWrite(GPIO_REL1, port, bitRead(TasmotaGlobal.rel_inverted, port) ? !state : state);
       }
       port += port_next;                          // Select next relay
@@ -335,6 +350,11 @@ void SetDevicePower(power_t rpower, uint32_t source) {
       delay(Settings->param[P_BISTABLE_PULSE]);   // SetOption45 - Keep energized for about 5 x operation time
       for (uint32_t i = 0; i < port; i++) {       // Reset up to detected amount of ports
         if (bitRead(TasmotaGlobal.rel_bistable, i)) {
+          if (Settings->flag6.bistable_single_pin) {  // SetOption152 - (Power) Use single pin bistable
+            if (!bitRead(bistable, i)) {
+              continue;
+            }
+          }
           DigitalWrite(GPIO_REL1, i, bitRead(TasmotaGlobal.rel_inverted, i) ? 1 : 0);
         }
       }
@@ -399,6 +419,7 @@ void SetPowerOnState(void)
   } else {
     power_t devices_mask = POWER_MASK >> (POWER_SIZE - TasmotaGlobal.devices_present);
     if (ResetReasonPowerOn()) {
+      TasmotaGlobal.power_latching = 0;   // Single pin latching relay is powered off after re-applying power
       switch (Settings->poweronstate) {
       case POWER_ALL_OFF:
       case POWER_ALL_OFF_PULSETIME_ON:
@@ -808,6 +829,11 @@ void MqttShowState(void)
 
   ResponseAppendTime();
   ResponseAppend_P(PSTR(",\"" D_JSON_UPTIME "\":\"%s\",\"UptimeSec\":%u"), GetUptime().c_str(), UpTime());
+
+  // Battery Level expliciet for deepsleep devices
+  if (Settings->battery_level_percent != 101) {
+    ResponseAppend_P(PSTR(",\"" D_CMND_ZIGBEE_BATTPERCENT "\":%d"), Settings->battery_level_percent);
+  }
 
 #ifdef ESP8266
 #ifdef USE_ADC_VCC
@@ -1221,6 +1247,8 @@ void Every100mSeconds(void)
       }
     }
   }
+
+  WiFiSetTXpowerBasedOnRssi();
 }
 
 /*-------------------------------------------------------------------------------------------*\
@@ -1538,7 +1566,7 @@ void Every250mSeconds(void)
 
       TasmotaGlobal.restart_flag--;
       if (TasmotaGlobal.restart_flag <= 0) {
-        AddLog(LOG_LEVEL_INFO, PSTR(D_LOG_APPLICATION "%s"), (TasmotaGlobal.restart_halt) ? PSTR("Halted") : PSTR(D_RESTARTING));
+        AddLog(LOG_LEVEL_INFO, PSTR(D_LOG_APPLICATION "%s"), (TasmotaGlobal.restart_halt) ? PSTR("Halted") : (TasmotaGlobal.restart_deepsleep) ? PSTR("Sleeping") : PSTR(D_RESTARTING));
         EspRestart();
       }
     }
@@ -1618,6 +1646,7 @@ void Every250mSeconds(void)
   }
 }
 
+#ifdef ESP8266
 #ifdef USE_ARDUINO_OTA
 /*********************************************************************************************\
  * Allow updating via the Arduino OTA-protocol.
@@ -1701,6 +1730,7 @@ void ArduinoOtaLoop(void)
   while (arduino_ota_triggered) { ArduinoOTA.handle(); }
 }
 #endif  // USE_ARDUINO_OTA
+#endif  // ESP8266
 
 /********************************************************************************************/
 
@@ -1892,6 +1922,8 @@ void TasConsoleInput(void) {
 //
 // This patched version of pinMode forces a full GPIO reset before setting new mode
 //
+#include "driver/gpio.h"
+
 extern "C" void ARDUINO_ISR_ATTR __pinMode(uint8_t pin, uint8_t mode);
 
 extern "C" void ARDUINO_ISR_ATTR pinMode(uint8_t pin, uint8_t mode) {
@@ -2199,11 +2231,19 @@ void GpioInit(void)
   TasmotaGlobal.i2c_enabled = (PinUsed(GPIO_I2C_SCL) && PinUsed(GPIO_I2C_SDA));
   if (TasmotaGlobal.i2c_enabled) {
     TasmotaGlobal.i2c_enabled = I2cBegin(Pin(GPIO_I2C_SDA), Pin(GPIO_I2C_SCL));
+#ifdef ESP32
+    if (TasmotaGlobal.i2c_enabled) {
+      AddLog(LOG_LEVEL_INFO, PSTR("I2C: Bus1 using GPIO%02d(SCL) and GPIO%02d(SDA)"), Pin(GPIO_I2C_SCL), Pin(GPIO_I2C_SDA));
+    }
+#endif
   }
 #ifdef ESP32
   TasmotaGlobal.i2c_enabled_2 = (PinUsed(GPIO_I2C_SCL, 1) && PinUsed(GPIO_I2C_SDA, 1));
   if (TasmotaGlobal.i2c_enabled_2) {
     TasmotaGlobal.i2c_enabled_2 = I2c2Begin(Pin(GPIO_I2C_SDA, 1), Pin(GPIO_I2C_SCL, 1));
+    if (TasmotaGlobal.i2c_enabled_2) {
+      AddLog(LOG_LEVEL_INFO, PSTR("I2C: Bus2 using GPIO%02d(SCL) and GPIO%02d(SDA)"), Pin(GPIO_I2C_SCL, 1), Pin(GPIO_I2C_SDA, 1));
+    }
   }
 #endif
 #endif  // USE_I2C
@@ -2218,12 +2258,22 @@ void GpioInit(void)
         if (i &1) { TasmotaGlobal.devices_present--; }
       }
 #endif  // ESP8266
-      if (bitRead(TasmotaGlobal.rel_bistable, i)) {
-        if (bi_device &1) { TasmotaGlobal.devices_present--; }
+      if (!Settings->flag6.bistable_single_pin) {  // SetOption152 - (Power) Use single pin bistable
+        if (bitRead(TasmotaGlobal.rel_bistable, i)) {
+          if (bi_device &1) {
+            TasmotaGlobal.devices_present--;
+          }
+        }
         bi_device++;
       }
     }
   }
+
+#ifdef USE_UFILESYS
+#ifdef USE_SDCARD
+  UfsCheckSDCardInit();
+#endif  // USE_SDCARD
+#endif  // USE_UFILESYS
 
   XdrvCall(FUNC_SETUP_RING1);                              // Setup RTC hardware
   XsnsXdrvCall(FUNC_SETUP_RING2);                          // Setup hardware supporting virtual switches/buttons/relays

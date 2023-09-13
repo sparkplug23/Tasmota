@@ -58,6 +58,7 @@
 #define D_AS "名称:"
 #define D_AUTO "自动"
 #define D_BATT "Batt"                // Short for Battery
+#define D_BATTERY_CHARGE "Charge"   // Battery charge in %
 #define D_BLINK "闪烁"
 #define D_BLINKOFF "闪烁关"
 #define D_BOOT_COUNT "启动次数"
@@ -104,6 +105,7 @@
 #define D_FALLBACK_TOPIC "回退主题"
 #define D_FALSE "False"
 #define D_FILE "文件:"
+#define D_FILE_SYSTEM_SIZE "File System Size"
 #define D_FLOW_RATE "Flow rate"
 #define D_FRAGMENTATION "frag."      // Lower case abbreviated version of fragmentation used in "memory fragmentation"
 #define D_FRAME_RATE "Frame rate"
@@ -186,6 +188,9 @@
 #define D_TRANSMIT "发送"
 #define D_TRUE "True"
 #define D_TVOC "TVOC"
+#define D_TWILIGHT_ASTRONOMICAL "Astronomical"
+#define D_TWILIGHT_CIVIL "Civil"
+#define D_TWILIGHT_NAUTICAL "Nautical"
 #define D_UPGRADE "升级"
 #define D_UPLOAD "上传"
 #define D_UPTIME "运行时间"
@@ -270,7 +275,7 @@
 #define D_CONFIGURATION "设置"
 #define D_INFORMATION "信息"
 #define D_FIRMWARE_UPGRADE "固件升级"
-#define D_MANAGEMENT "Consoles"
+#define D_MANAGEMENT "控制台"
 #define D_CONSOLE "控制台"
 #define D_CONFIRM_RESTART "确认重启"
 
@@ -491,12 +496,12 @@
 
 // xdrv_23_zigbee
 #define D_ZIGBEE_PERMITJOIN_ACTIVE "允许设备连入"
-#define D_ZIGBEE_MAPPING_TITLE "Tasmota Zigbee 映射"
+#define D_ZIGBEE_MAPPING_TITLE "Tasmota Zigbee 网络拓扑"
 #define D_ZIGBEE_NOT_STARTED "Zigbee 未启动"
 #define D_ZIGBEE_MAPPING_IN_PROGRESS_SEC "正在处理中 (等待 %d s.)"
-#define D_ZIGBEE_MAPPING_NOT_PRESENT "无映射"
-#define D_ZIGBEE_MAP_REFRESH "Zigbee 映射刷新"
-#define D_ZIGBEE_MAP   "Zigbee 映射"
+#define D_ZIGBEE_MAPPING_NOT_PRESENT "无拓扑"
+#define D_ZIGBEE_MAP_REFRESH "Zigbee 拓扑结构刷新"
+#define D_ZIGBEE_MAP   "Zigbee 拓扑"
 #define D_ZIGBEE_PERMITJOIN "Zigbee 允许连入"
 #define D_ZIGBEE_GENERATE_KEY "正在生成 Zigbee 网络随机秘钥"
 #define D_ZIGBEE_UNKNOWN_DEVICE "未知设备"
@@ -650,6 +655,7 @@
 #define D_SENSOR_I2S_BCLK_IN   "I2S WS IN"
 #define D_SENSOR_I2S_DIN       "I2S DIN"
 #define D_SENSOR_I2S_DOUT      "I2S DOUT"
+#define D_SENSOR_HDMI_CEC      "HDMI CEC"
 #define D_SENSOR_WS2812        "WS2812"
 #define D_SENSOR_DFR562        "MP3 Player"
 #define D_SENSOR_DFR562_BUSY   "MP3 Busy"
@@ -802,6 +808,8 @@
 #define D_SENSOR_OUTPUT_LO     "Output Lo"
 #define D_SENSOR_AS608_TX      "AS608 Tx"
 #define D_SENSOR_AS608_RX      "AS608 Rx"
+#define D_SENSOR_GM861_TX      "GM861 Tx"
+#define D_SENSOR_GM861_RX      "GM861 Rx"
 #define D_SENSOR_DDS2382_TX    "DDS238-2 Tx"
 #define D_SENSOR_DDS2382_RX    "DDS238-2 Rx"
 #define D_SENSOR_DDSU666_TX    "DDSU666 Tx"
@@ -917,6 +925,7 @@
 #define D_GPIO_DINGTIAN_SDI    "Dingtian SDI"
 #define D_GPIO_DINGTIAN_Q7     "Dingtian Q7"
 #define D_GPIO_DINGTIAN_PL     "Dingtian PL"
+#define D_GPIO_DINGTIAN_OE     "Dingtian OE"
 #define D_GPIO_DINGTIAN_RCK    "Dingtian RCK"
 #define D_SENSOR_CM11_TX       "CM110x TX"
 #define D_SENSOR_CM11_RX       "CM110x RX"
@@ -928,6 +937,7 @@
 #define D_SENSOR_BIOPDU_PZEM0XX_TX "BioPDU PZEM0XX Tx"
 #define D_SENSOR_BIOPDU_PZEM016_RX "BioPDU PZEM016 Rx"
 #define D_SENSOR_BIOPDU_BIT    "BioPDU Bit"
+#define D_SENSOR_LOX_O2_RX     "LoxO2 RX"
 
 // Units
 #define D_UNIT_AMPERE "A"
@@ -1187,5 +1197,9 @@
 #define D_NEOPOOL_PH_HIGH                 "too high"          // ph Alarms
 #define D_NEOPOOL_PH_LOW                  "too low"
 #define D_NEOPOOL_PUMP_TIME_EXCEEDED      "pump time exceeded"
+
+// xsns_106_gdk101.ino
+#define D_AVG_RAD_DOSE                    "平均辐射剂量"
+#define D_UNIT_US_H                       "µSv/h"
 
 #endif  // _LANGUAGE_ZH_CN_H_

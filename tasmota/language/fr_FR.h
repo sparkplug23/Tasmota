@@ -58,6 +58,7 @@
 #define D_AS "comme"
 #define D_AUTO "AUTO"
 #define D_BATT "Batt"                // Short for Battery
+#define D_BATTERY_CHARGE "Charge"    // Battery charge in %
 #define D_BLINK "Blink"              // Not better in french
 #define D_BLINKOFF "BlinkOff"
 #define D_BOOT_COUNT "Nb. de boot"
@@ -104,6 +105,7 @@
 #define D_FALLBACK_TOPIC "Topic de secours"
 #define D_FALSE "Faux"
 #define D_FILE "Fichier"
+#define D_FILE_SYSTEM_SIZE "File System Size"
 #define D_FLOW_RATE "Débit"
 #define D_FRAGMENTATION "frag."      // Lower case abbreviated version of fragmentation used in "memory fragmentation"
 #define D_FRAME_RATE "Fréq. image"
@@ -186,6 +188,9 @@
 #define D_TRANSMIT "Transmettre"
 #define D_TRUE "Vrai"
 #define D_TVOC "TVOC"				         // not used ???
+#define D_TWILIGHT_ASTRONOMICAL "Astronomical"
+#define D_TWILIGHT_CIVIL "Civil"
+#define D_TWILIGHT_NAUTICAL "Nautical"
 #define D_UPGRADE "la mise à jour" 	 // "Lancer la mise à jour"
 #define D_UPLOAD "Upload"            // Not better in french
 #define D_UPTIME "Durée d'activité"
@@ -650,6 +655,7 @@
 #define D_SENSOR_I2S_BCLK_IN   "I2S WS In"
 #define D_SENSOR_I2S_DIN       "I2S DIn"
 #define D_SENSOR_I2S_DOUT      "I2S DOut"
+#define D_SENSOR_HDMI_CEC      "HDMI CEC"
 #define D_SENSOR_WS2812        "WS2812"
 #define D_SENSOR_DFR562        "MP3 Player"
 #define D_SENSOR_DFR562_BUSY   "MP3 Busy"
@@ -802,6 +808,8 @@
 #define D_SENSOR_OUTPUT_LO     "Sortie Lo"
 #define D_SENSOR_AS608_TX      "AS608 Tx"
 #define D_SENSOR_AS608_RX      "AS608 Rx"
+#define D_SENSOR_GM861_TX      "GM861 Tx"
+#define D_SENSOR_GM861_RX      "GM861 Rx"
 #define D_SENSOR_DDS2382_TX    "DDS238-2 Tx"
 #define D_SENSOR_DDS2382_RX    "DDS238-2 Rx"
 #define D_SENSOR_DDSU666_TX    "DDSU666 Tx"
@@ -917,6 +925,7 @@
 #define D_GPIO_DINGTIAN_SDI    "Dingtian SDI"
 #define D_GPIO_DINGTIAN_Q7     "Dingtian Q7"
 #define D_GPIO_DINGTIAN_PL     "Dingtian PL"
+#define D_GPIO_DINGTIAN_OE     "Dingtian OE"
 #define D_GPIO_DINGTIAN_RCK    "Dingtian RCk"
 #define D_SENSOR_CM11_TX       "CM110x Tx"
 #define D_SENSOR_CM11_RX       "CM110x Rx"
@@ -928,6 +937,7 @@
 #define D_SENSOR_BIOPDU_PZEM0XX_TX "BioPDU PZEM0XX Tx"
 #define D_SENSOR_BIOPDU_PZEM016_RX "BioPDU PZEM016 Rx"
 #define D_SENSOR_BIOPDU_BIT    "BioPDU Bit"
+#define D_SENSOR_LOX_O2_RX     "LoxO2 RX"
 
 
 // Units
@@ -1188,5 +1198,9 @@
 #define D_NEOPOOL_PH_HIGH                 "Trop haut"          // ph Alarms
 #define D_NEOPOOL_PH_LOW                  "Trop bas"
 #define D_NEOPOOL_PUMP_TIME_EXCEEDED      "durée pompage expirée"
+
+// xsns_106_gdk101.ino
+#define D_AVG_RAD_DOSE                    "dose moyenne de rayonnement"
+#define D_UNIT_US_H                       "µSv/h"
 
 #endif  // _LANGUAGE_FR_FR_H_
