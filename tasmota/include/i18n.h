@@ -249,6 +249,7 @@
 #define D_RSLT_STATE "STATE"
 #define D_RSLT_UPTIME "UPTIME"
 #define D_RSLT_WARNING "WARNING"
+#define D_RSLT_COMMAND "COMMAND"
 
 #define D_LOG_SOME_SETTINGS_RESET "Some settings have been reset"
 
@@ -761,6 +762,11 @@
 // Commands xdrv_38_ping.ino
 #define D_CMND_PING "Ping"
 #define D_JSON_PING "Ping"
+
+// Commands xdrv_42_audio - I2S Audio
+#define D_PRFX_I2S "I2S"
+#define D_JSON_I2S_CONFIG "Config"
+
 
 // Commands xdrv_52_berry.ino - Berry scripting language
 #define D_PRFX_BR "Br"
