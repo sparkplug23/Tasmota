@@ -75,7 +75,7 @@ Latest released binaries can be downloaded from
 - http://ota.tasmota.com/tasmota/release
 
 Historical binaries can be downloaded from
-- http://ota.tasmota.com/tasmota/release-13.2.0
+- http://ota.tasmota.com/tasmota/release-13.3.0
 
 The latter links can be used for OTA upgrades too like ``OtaUrl http://ota.tasmota.com/tasmota/release/tasmota.bin.gz``
 
@@ -95,12 +95,18 @@ The following binary downloads have been compiled with ESP32/Arduino library cor
 - **tasmota32-webcam.bin** = The Webcam version adds webcam support for 4M+ flash.
 - **tasmota32-zbbridgepro.bin** - The Sonoff Zigbee Bridge Pro version with CC2652P firmware load support.
 
+### ESP32-C2 and ESP32-C6 based
+The following binary downloads have been compiled with ESP32/Arduino library core version **3.0.0-alpha3**.
+
+- **tasmota32c2-arduino30.bin** = The Tasmota version with most drivers including additional sensors and KNX for ESP32-C2 and 4M+ flash.
+- **tasmota32c6cdc-arduino30.bin** = The Tasmota version with most drivers including additional sensors and KNX for ESP32-C6 with serial over embedded USB CDC or hardware USB and 4M+ flash.
+
 Latest released binaries can be downloaded from
 - https://github.com/arendst/Tasmota-firmware/tree/main/release-firmware
 - https://ota.tasmota.com/tasmota32/release
 
 Historical binaries can be downloaded from
-- https://ota.tasmota.com/tasmota32/release-13.2.0
+- https://ota.tasmota.com/tasmota32/release-13.3.0
 
 The latter links can be used for OTA upgrades too like ``OtaUrl https://ota.tasmota.com/tasmota32/release/tasmota32.bin``
 
@@ -110,28 +116,22 @@ The latter links can be used for OTA upgrades too like ``OtaUrl https://ota.tasm
 
 [Complete list](BUILDS.md) of available feature and sensors.
 
-## Changelog v13.2.0.1
+## Changelog v13.3.0.1
 ### Added
-- Command ``GpioRead`` to show input state [#19810](https://github.com/arendst/Tasmota/issues/19810)
-- I2C bus2 support to iAQ core sensor [#19799](https://github.com/arendst/Tasmota/issues/19799)
-- I2C bus2 support to HTU temperature and humidity sensor
-- I2C bus2 support to BH1750 ambient light sensor
-- I2C bus2 support to ADS1115 A/D Converter
-- I2C bus2 support to SHTxX temperature and humidity sensor
-- I2C bus2 support to HYTxxx temperature and humidity sensor
-- I2C bus2 support to SI1145/6/7 Ultra violet index and light sensor
-- I2C bus2 support to LM75AD temperature sensor
-- Support for Winsen XH03x dust particle sensors using USE_PMS5003 and PMS_MODEL_ZH03X [#19850](https://github.com/arendst/Tasmota/issues/19850)
-- Experimental support for ESP32-C2 and ESP32-C6 using Arduino core v3
-- ESP32 core v3 auto TasConsole USB or Serial connection by @staars
+- Support for CST816S touch interface [#20213](https://github.com/arendst/Tasmota/issues/20213)
+- Support for Sonoff Basic R4 Magic Switch [#20247](https://github.com/arendst/Tasmota/issues/20247)
+- NeoPool hydrolysis FL1 and Redox flag [#20258](https://github.com/arendst/Tasmota/issues/20258)
 
 ### Breaking Changed
+- Refactoring of Berry `animate` module for WS2812 Leds [#20236](https://github.com/arendst/Tasmota/issues/20236)
 
 ### Changed
-- Matter Light0 now accept a Relay number [#19809](https://github.com/arendst/Tasmota/issues/19809)
+- Support syslog updates every sleep or every second if `#define SYSLOG_UPDATE_SECOND` [#20260](https://github.com/arendst/Tasmota/issues/20260)
 
 ### Fixed
-- NeoPool filtration mode display [#19801](https://github.com/arendst/Tasmota/issues/19801)
-- ESP32 I2C allow bus2 support when bus1 is not enabled
+- CVE-2021-36603 Cross Site Scripting (XSS) vulnerability [#12221](https://github.com/arendst/Tasmota/issues/12221)
+- Syslog server warning caused by lack of <PRI> field and hostname starting with 'z' [#14689](https://github.com/arendst/Tasmota/issues/14689)
+- ESP32 piezo ceramic buzzer doesn't buzz [#20118](https://github.com/arendst/Tasmota/issues/20118)
+- Matter Contact sensor was not triggering any update [#20232](https://github.com/arendst/Tasmota/issues/20232)
 
 ### Removed

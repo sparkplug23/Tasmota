@@ -1442,26 +1442,16 @@ void SetPin(uint32_t lpin, uint32_t gpio) {
   TasmotaGlobal.gpio_pin[lpin] = gpio;
 }
 
-#ifdef CONFIG_IDF_TARGET_ESP32C3
-#include "driver/gpio.h"                         // Include needed for Arduino 3
-#endif
-
 void DigitalWrite(uint32_t gpio_pin, uint32_t index, uint32_t state) {
   static uint32_t pinmode_init[2] = { 0 };       // Pins 0 to 63 !!!
 
   if (PinUsed(gpio_pin, index)) {
     uint32_t pin = Pin(gpio_pin, index) & 0x3F;  // Fix possible overflow over 63 gpios
-#ifdef CONFIG_IDF_TARGET_ESP32C3
-    gpio_hold_dis((gpio_num_t)pin);              // Allow state change
-#endif
     if (!bitRead(pinmode_init[pin / 32], pin % 32)) {
       bitSet(pinmode_init[pin / 32], pin % 32);
       pinMode(pin, OUTPUT);
     }
     digitalWrite(pin, state &1);
-#ifdef CONFIG_IDF_TARGET_ESP32C3
-    gpio_hold_en((gpio_num_t)pin);               // Retain the state when the chip or system is reset, for example, when watchdog time-out or Deep-sleep
-#endif
   }
 }
 
@@ -1726,17 +1716,7 @@ uint32_t ValidPin(uint32_t pin, uint32_t gpio, uint8_t isTuya = false) {
     return GPIO_NONE;    // Disable flash pins GPIO6, GPIO7, GPIO8 and GPIO11
   }
 
-#if CONFIG_IDF_TARGET_ESP32C2
-// ignore
-#elif CONFIG_IDF_TARGET_ESP32C3
-// ignore
-#elif CONFIG_IDF_TARGET_ESP32C6
-// ignore
-#elif CONFIG_IDF_TARGET_ESP32S2
-// ignore
-#elif CONFIG_IDF_TARGET_ESP32
-// ignore
-#else // not ESP32C3 and not ESP32S2
+#ifdef ESP8266
   if (((WEMOS == Settings->module) || isTuya) && !Settings->flag3.user_esp8285_enable) {  // SetOption51 - Enable ESP8285 user GPIO's
     if ((9 == pin) || (10 == pin)) {
       return GPIO_NONE;  // Disable possible flash GPIO9 and GPIO10
@@ -2317,8 +2297,9 @@ void SyslogAsync(bool refresh) {
   char* line;
   size_t len;
   while (GetLog(TasmotaGlobal.syslog_level, &index, &line, &len)) {
-    // 00:00:02.096 HTP: Web server active on wemos5 with IP address 192.168.2.172
-    //              HTP: Web server active on wemos5 with IP address 192.168.2.172
+    // <--- mxtime ---> TAG  MSG
+    // 00:00:02.096-029 HTP: Web server active on wemos5 with IP address 192.168.2.172
+    //                  HTP: Web server active on wemos5 with IP address 192.168.2.172
     uint32_t mxtime = strchr(line, ' ') - line +1;  // Remove mxtime
     if (mxtime > 0) {
       uint32_t current_hash = GetHash(SettingsText(SET_SYSLOG_HOST), strlen(SettingsText(SET_SYSLOG_HOST)));
@@ -2341,7 +2322,14 @@ void SyslogAsync(bool refresh) {
       }
 
       char header[64];
-      snprintf_P(header, sizeof(header), PSTR("%s ESP-"), NetworkHostname());
+      // RFC3164 - BSD syslog protocol - <PRI>TIMESTAMP HOSTNAME TAG MSG
+      // <PRI> = Facility 16 (= local use 0), Severity 6 (= informational) => 16 * 8 + 6 = <134>
+      // TIMESTAMP = Mmm dd hh:mm:ss
+      // <134>Jan  1 00:00:02 wemos5 ESP-HTP: server active on wemos5 with IP address 192.168.2.172
+      snprintf_P(header, sizeof(header), PSTR("<134>%s %s ESP-"), GetSyslogDate(line).c_str(), NetworkHostname());
+      // Legacy format
+//      snprintf_P(header, sizeof(header), PSTR("%s ESP-"), NetworkHostname());
+
       char* line_start = line +mxtime;
 #ifdef ESP8266
       // Packets over 1460 bytes are not send
